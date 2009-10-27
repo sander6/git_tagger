@@ -1,0 +1,27 @@
+GitTagger: A tiny little library for tagging Capistrano deploys with Git
+
+GitTagger will build a tag marked with a namespace, a timestamp, a build number (to differentiate multiple deploys with the same timestamp), and a commit. This should give you all the information you need to pinpoint exactly what and when a certain Capistrano deploy points to.
+
+To use:
+@git = GitTagger.new("namespace")
+@git.tag # => git tag namespace-20091026-01-6d87ee
+
+Or to tag with a specific name:
+@git.tag("tag-name") # => git tag tag-name
+
+You can also push tags to your remote repository:
+@git.push # => git push --tags --force
+
+Then, if you have too many tags, you can clean them up:
+@git.clean(10) # => Keeps the last 10 tags, deletes the rest.
+
+A typical way to use the GitTagger is in an after :deploy block in a Capistrano recipe:
+after :deploy do
+  @git = GitTagger.new("namespace")
+  @git.tag
+  @git.tag("latest")
+  @git.clean(10)
+  @git.push
+end
+
+This will make a unique tag for this commit, tag it with "latest", delete all but the last 10 tags, and push it all up to origin.
